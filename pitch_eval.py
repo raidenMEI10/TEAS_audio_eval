@@ -44,6 +44,12 @@ def mypitch_eval(estimate_path, GT_csvpath, Method):
         estimate_list = ReadCSV.getcsvname(estimate_path + '/' + Method)
 
     GT_list = ReadCSV.getcsvname(GT_csvpath)
+    pitch_raw_t50_accuray_list = []
+    pitch_raw_t25_accuray_list = []
+    pitch_raw_t10_accuray_list = []
+    pitch_chroma_t50_list = []
+    pitch_chroma_t25_list = []
+    pitch_chroma_t10_list = []
     for i in range(len(estimate_list)):
         if Method == 'REAPER':
             estimate_pitch, estimate_time = readf0.read_f0_file(estimate_path + '/' + Method + '/' + estimate_list[i])
@@ -63,9 +69,9 @@ def mypitch_eval(estimate_path, GT_csvpath, Method):
         else:
             estimate_pitch, estimate_time = ReadCSV.ReadPitch(estimate_path + '/' + Method + '/' + estimate_list[i])
         GT_pitch, GT_time = ReadCSV.ReadPitch(GT_csvpath + '/' + GT_list[i])
-        print(max(GT_pitch))
-        print(min(GT_pitch))
-        print(type(estimate_pitch))
+        # print(max(GT_pitch))
+        # print(min(GT_pitch))
+        # print(type(estimate_pitch))
 
         GT_time = np.array([float(x) for x in GT_time])
         GT_pitch = np.array([float(x) for x in GT_pitch])
@@ -81,8 +87,6 @@ def mypitch_eval(estimate_path, GT_csvpath, Method):
         GT_pitch = np.fromstring(GT_pitch)
         GT_time = np.array(GT_time)
 
-
-
         # GT_pitch = [GT_pitch]
         # estimate_pitch = [estimate_pitch]
         # print(GT_pitch[0].shape)
@@ -93,22 +97,31 @@ def mypitch_eval(estimate_path, GT_csvpath, Method):
                                                          GT_pitch,
                                                          estimate_time,
                                                          estimate_pitch)
-        raw_pitch = mir_eval.melody.raw_chroma_accuracy(ref_v, ref_c,
-                                                       est_v, est_c)
-        raw_chroma_t50 = mir_eval.melody.raw_pitch_accuracy(ref_v, ref_c,
-                                                         est_v, est_c, cent_tolerance=50)
-        raw_chroma_t25 = mir_eval.melody.raw_pitch_accuracy(ref_v, ref_c,
-                                                         est_v, est_c, cent_tolerance=25)
-        raw_chroma_t10 = mir_eval.melody.raw_pitch_accuracy(ref_v, ref_c,
-                                                         est_v, est_c, cent_tolerance=10)
+        raw_pitch_t50 = float(mir_eval.melody.raw_chroma_accuracy(ref_v, ref_c,
+                                                              est_v, est_c,cent_tolerance=50))
+        raw_pitch_t25 = float(mir_eval.melody.raw_chroma_accuracy(ref_v, ref_c,
+                                                                  est_v, est_c, cent_tolerance=25))
+        raw_pitch_t10 = float(mir_eval.melody.raw_chroma_accuracy(ref_v, ref_c,
+                                                                  est_v, est_c, cent_tolerance=10))
+        raw_chroma_t50 = float(mir_eval.melody.raw_pitch_accuracy(ref_v, ref_c,
+                                                                  est_v, est_c, cent_tolerance=50))
+        raw_chroma_t25 = float(mir_eval.melody.raw_pitch_accuracy(ref_v, ref_c,
+                                                                  est_v, est_c, cent_tolerance=25))
+        raw_chroma_t10 = float(mir_eval.melody.raw_pitch_accuracy(ref_v, ref_c,
+                                                                  est_v, est_c, cent_tolerance=10))
+        pitch_raw_t50_accuray_list.append(raw_pitch_t50)
+        pitch_raw_t25_accuray_list.append(raw_pitch_t25)
+        pitch_raw_t10_accuray_list.append(raw_pitch_t10)
+        pitch_chroma_t50_list.append(raw_chroma_t50)
+        pitch_chroma_t25_list.append(raw_chroma_t25)
+        pitch_chroma_t10_list.append(raw_chroma_t10)
 
         # (precision_no_offset,
         #  recall_no_offset,
         #  f_measure_no_offset, avg_overlap_ratio) = mir_eval.transcription.precision_recall_f1_overlap(GT_time, GT_pitch,
         #                                                                                               estimate_time,
         #
-        accrancy_item = [raw_pitch,raw_chroma_t50,raw_chroma_t25,raw_chroma_t10]
-
+        accrancy_item = [raw_pitch_t50, raw_chroma_t50, raw_chroma_t25, raw_chroma_t10]
 
         # metris_tuple = (
         #     GT_time, GT_pitch, estimate_time, estimate_pitch)
@@ -118,19 +131,41 @@ def mypitch_eval(estimate_path, GT_csvpath, Method):
         #                                                  estimate_pitch)
 
         precisionlist.append(accrancy_item)
-        # recalllist.append(recall_no_offset)
-        # F1scorelist.append(f_measure_no_offset)
-        GT_pitch_list = []
-        estimate_pitch_list = []
-        # print("precision: " + str(precision_no_offset) + ", recall: " + str(recall_no_offset) + ", F1score: " + str(
-        #     f_measure_no_offset) + "\n")
-        #print(dic.items())
-        print("estimate file: "+str(estimate_list[i])+" 's "+Method+" results are:")
-        print("raw_chroma_accuracy is: "+str(raw_pitch))
 
-        print("raw_pitch_accurancy with tolerance 50 is: "+str(raw_chroma_t50))
-        print("raw_pitch_accurancy with tolerance 25 is: "+str(raw_chroma_t25))
-        print("raw_pitch_accurancy with tolerance 10 is: "+str(raw_chroma_t10))
+        # print("estimate file: "+str(estimate_list[i])+" 's "+Method+" results are:")
+        # print("raw_chroma_accuracy is: "+str(raw_pitch_t50))
+        #
+        # print("raw_pitch_accurancy with tolerance 50 is: "+str(raw_chroma_t50))
+        # print("raw_pitch_accurancy with tolerance 25 is: "+str(raw_chroma_t25))
+        # print("raw_pitch_accurancy with tolerance 10 is: "+str(raw_chroma_t10))
+    pitch_raw_t50_accuray_list.sort()
+    pitch_raw_t25_accuray_list.sort()
+    pitch_raw_t10_accuray_list.sort()
+    pitch_chroma_t50_list.sort()
+    pitch_chroma_t25_list.sort()
+    pitch_chroma_t10_list.sort()
+    middle_raw_t50_accuray = pitch_raw_t50_accuray_list[len(pitch_raw_t50_accuray_list) // 2]
+    middle_raw_t25_accuray = pitch_raw_t25_accuray_list[len(pitch_raw_t25_accuray_list) // 2]
+    middle_raw_t10_accuray = pitch_raw_t10_accuray_list[len(pitch_raw_t10_accuray_list) // 2]
+    middle_chroma_t50_accuray = pitch_chroma_t50_list[len(pitch_chroma_t50_list) // 2]
+    middle_chroma_t25_accuray = pitch_chroma_t25_list[len(pitch_chroma_t25_list) // 2]
+    middle_chroma_t10_accuray = pitch_chroma_t10_list[len(pitch_chroma_t10_list) // 2]
+    print("whole the dataset 's accurancy is:")
+    print("raw_chroma_accuracy with tolerance 50 is: mean: " + str(np.mean(pitch_raw_t50_accuray_list)) + " middle: "+str(middle_raw_t50_accuray) + " bias: +=" +
+          str(np.std(pitch_raw_t50_accuray_list, ddof=1)))
+    print("raw_chroma_accuracy with tolerance 25 is: mean: " + str(np.mean(pitch_raw_t25_accuray_list)) + " middle: " + str(
+        middle_raw_t25_accuray) + " bias: +=" +
+          str(np.std(pitch_raw_t25_accuray_list, ddof=1)))
+    print("raw_chroma_accuracy with tolerance 10 is: mean: " + str(
+        np.mean(pitch_raw_t10_accuray_list)) + " middle: " + str(
+        middle_raw_t10_accuray) + " bias: +=" +
+          str(np.std(pitch_raw_t10_accuray_list, ddof=1)))
+    print("raw_pitch_accurancy with tolerance 50 is: mean: " + str(np.mean(pitch_chroma_t50_list)) + " middle: "+str(middle_chroma_t50_accuray) + " bias: +=" +
+          str(np.std(pitch_chroma_t50_list, ddof=1)))
+    print("raw_pitch_accurancy with tolerance 25 is: mean: " + str(np.mean(pitch_chroma_t25_list)) + " middle: "+str(middle_chroma_t25_accuray) + " bias: +=" +
+          str(np.std(pitch_chroma_t25_list, ddof=1)))
+    print("raw_pitch_accurancy with tolerance 10 is: mean: " + str(np.mean(pitch_chroma_t10_list)) + " middle: "+str(middle_chroma_t10_accuray) + " bias:+=" +
+          str(np.std(pitch_chroma_t10_list, ddof=1)))
 
 
 if __name__ == '__main__':

@@ -1,3 +1,4 @@
+import csv
 import os
 
 import numpy as np
@@ -12,10 +13,14 @@ def getonsetname(foldpath):
             csv_list.append(filename)
     return csv_list
 
-def readonset(foldpath):
-    csv_list = getonsetname(foldpath)
-    list = []
-    for file in csv_list:
-        data = pd.read_csv(foldpath+'/'+file, header=None)
-        list.append(data[0])
-    return np.array(list), csv_list
+def readonset(filename):
+    onset = []
+    offset = []
+
+    with open(filename, 'r') as csv_file:
+        csv_reader = csv.reader(csv_file)
+        for row in csv_reader:
+            onset.append(row[1])
+            offset.append(row[2])
+
+    return onset, offset
